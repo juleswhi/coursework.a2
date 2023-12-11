@@ -1,0 +1,25 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.7.34202.233
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "quiz", "quiz.csproj", "{44992B10-5861-4437-850C-83ED808CF832}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{44992B10-5861-4437-850C-83ED808CF832}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{44992B10-5861-4437-850C-83ED808CF832}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{44992B10-5861-4437-850C-83ED808CF832}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{44992B10-5861-4437-850C-83ED808CF832}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {C8868F14-0E4A-4E35-BED8-C7101ADB9DA7}
+	EndGlobalSection
+EndGlobal
