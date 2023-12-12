@@ -3,7 +3,6 @@ C:\Users\ayo mr white\Documents\GitHub\coursework.as\quiz\bin\Debug\net7.0-windo
 C:\Users\ayo mr white\Documents\GitHub\coursework.as\quiz\bin\Debug\net7.0-windows\quiz.runtimeconfig.json
 C:\Users\ayo mr white\Documents\GitHub\coursework.as\quiz\bin\Debug\net7.0-windows\quiz.dll
 C:\Users\ayo mr white\Documents\GitHub\coursework.as\quiz\bin\Debug\net7.0-windows\quiz.pdb
-C:\Users\ayo mr white\Documents\GitHub\coursework.as\quiz\obj\Debug\net7.0-windows\quiz.formMain.resources
 C:\Users\ayo mr white\Documents\GitHub\coursework.as\quiz\obj\Debug\net7.0-windows\quiz.formMaster.resources
 C:\Users\ayo mr white\Documents\GitHub\coursework.as\quiz\obj\Debug\net7.0-windows\quiz.csproj.GenerateResource.cache
 C:\Users\ayo mr white\Documents\GitHub\coursework.as\quiz\obj\Debug\net7.0-windows\quiz.GeneratedMSBuildEditorConfig.editorconfig

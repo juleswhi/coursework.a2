@@ -2,30 +2,30 @@
 
 public partial class formMaster : Form
 {
-    public Form Active { get; set; }
-    private Panel _holder { get; set; } = new();
     public formMaster()
     {
         InitializeComponent();
-        _holder.Dock = DockStyle.Fill;
-        _holder.BackColor = Color.Aquamarine;
-        Controls.Add(_holder);
+        Size = new(Size.Width, Size.Height + 100);
+        CenterToScreen();
 
-        Open<formMain>();
+        PictureBox canvas = new View(this, new()
+        {
+            new CanvasText("Main Menu", Helper.Fonts[3], Helper.Colourscheme[4], (_c) => _c.GetCenter(0, _c.Top - 175)),
+            new CanvasButton("Play Quiz!", Helper.Fonts[2], Helper.Colourscheme[1], Helper.Colourscheme[3], (_c) => _c.GetDefaultBoxSize(), (_c) => _c.GetCenter(0, -75)),
+            new CanvasButton("Leaderboard", Helper.Fonts[2], Helper.Colourscheme[1], Helper.Colourscheme[3], (_c) => _c.GetDefaultBoxSize(), (_c) => _c.GetCenter(0, 50)),
+            new CanvasButton("Settings", Helper.Fonts[2], Helper.Colourscheme[1], Helper.Colourscheme[3], (_c) => _c.GetDefaultBoxSize(), (_c) => _c.GetCenter(0, 175)),
+        }).Run();
 
-    }
+        Controls.Add(canvas);
 
-    public void Open<T>() where T : Form, new()
-    {
-        T child = new();
-        if (Active != null) Active.Close();
+        System.Timers.Timer timer = new(16);
 
-        Active = child;
-        Active.TopLevel = false;
-        child.FormBorderStyle = FormBorderStyle.None;
-        child.Dock = DockStyle.Fill;
-        _holder.Controls.Add(child);
-        child.BringToFront();
-        child.Show();
+        timer.Elapsed += (s, e) =>
+        {
+            Helper.MouseLocation = PointToClient(MousePosition);
+        };
+
+        timer.Start();
+
     }
 }

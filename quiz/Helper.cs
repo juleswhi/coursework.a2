@@ -4,6 +4,23 @@ namespace quiz;
 
 internal static class Helper
 {
+    public static Dictionary<int, Font> Fonts = new()
+    {
+        { 1, new Font(FontFamily.GenericMonospace, 10) },
+        { 2, new Font(FontFamily.GenericMonospace, 20) },
+        { 3, new Font(FontFamily.GenericMonospace, 30) },
+        { 4, new Font(FontFamily.GenericMonospace, 40) },
+        { 5, new Font(FontFamily.GenericMonospace, 50) },
+    };
+    public static Dictionary<int, BrushTypes> Colourscheme = new()
+    {
+        { 1, new BrushTypes(new SolidBrush(Color.FromArgb(211,189,176)), new SolidBrush(Color.FromArgb(193,174,159))) },
+        { 2, new BrushTypes(new SolidBrush(Color.FromArgb(193,174,159)), new SolidBrush(Color.FromArgb(137,147,124))) },
+        { 3, new BrushTypes(new SolidBrush(Color.FromArgb(137,147,124)), new SolidBrush(Color.FromArgb(113,91,100))) },
+        { 4, new BrushTypes(new SolidBrush(Color.FromArgb(113,91,100)), new SolidBrush(Color.FromArgb(105,56,92))) },
+    };
+
+
     public static PointF MouseLocation { get; set; } 
 
     public static bool GetMouseOver(this Rectangle rectangle)
@@ -16,12 +33,12 @@ internal static class Helper
     }
     public static Rectangle GetRectangle<T>(this T control) where T : ICanvasElement
     {
-        return new Rectangle(control.Location().Round(), control.Size);
+        return new Rectangle(control.Location(View.Current).Round(), control.Size);
     }
-    public static Func<PointF> JustifyCenter(this Func<PointF> func, Size size) {
-        return () => func().AccountForSize(size);
+    public static Func<PictureBox, PointF> JustifyCenter(this Func<PictureBox, PointF> func, Size size) {
+        return (c) => func(c).AccountForSize(size);
     }
-    public static Func<PointF> JustifyCenter(this CanvasButton control)
+    public static Func<PictureBox, PointF> JustifyCenter(this CanvasButton control)
     {
         return control.Location.JustifyCenter(control.Str.GetSize(control.Font));
     }
@@ -56,13 +73,13 @@ internal static class Helper
     }
     public static PointF AccountForSize<T>(this T control) where T : ICanvasElement
     {
-        var loc = control.Location();
+        var loc = control.Location(View.Current);
         return new PointF(loc.X - (int)(0.5 * control.Size.Width), loc.Y - (int)(0.5 * control.Size.Height));
     }
     public static PointF AccountForSize<T>(this T control, string str) where T : ICanvasText
     {
         var size = control.Font.GetTextSize(str);
-        var loc = control.Location();
+        var loc = control.Location(View.Current);
         return new PointF(loc.X - (int)(0.5 * size.Width), loc.Y - (int)(0.5 * size.Width));
     } 
     public static PointF AccountForSize(this Rectangle rect)
@@ -72,7 +89,7 @@ internal static class Helper
 
     public static PointF GetCenterElement<T>(this T control) where T : ICanvasElement
     {
-        var loc = control.Location();
+        var loc = control.Location(View.Current);
         return new PointF(loc.X / 2, loc.Y / 2);
     }
     public static PointF GetCenterControl<T>(this T control) where T : Control
