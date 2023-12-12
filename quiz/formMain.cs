@@ -22,7 +22,7 @@ public partial class formMain : Form
 
         // Add the banner
         _elements.Add(new CanvasText("Main Menu", _font, Brushes.Pink, () => _c.GetCenter(0, _c.Top - 100)));
-        _elements.Add(new CanvasButton("Button", _font, null, Brushes.Pink, _c.GetDefaultBoxSize(), () => _c.GetCenter()));
+        _elements.Add(new CanvasButton("Button", _font, backBrush: null, textBrush: Brushes.White, _c.GetDefaultBoxSize(), () => _c.GetCenterControl()));
 
         // 60~ fps
         System.Timers.Timer t = new(16);
@@ -30,8 +30,22 @@ public partial class formMain : Form
         t.Elapsed += (s, e) => _c.Refresh();
 
     }
+
+    public bool DetectMouse(Rectangle rectangle)
+    {
+        if(new(PointToClient(MousePosition), new Size(20,20))/)
+    }
+
     private void _c_Paint(object? sender, PaintEventArgs e)
     {
+        e.Graphics.CompositingMode = System.Drawing.Drawing2D.CompositingMode.SourceOver;
+        e.Graphics.CompositingQuality = System.Drawing.Drawing2D.CompositingQuality.HighSpeed;
+        e.Graphics.InterpolationMode = System.Drawing.Drawing2D.InterpolationMode.NearestNeighbor;
+        e.Graphics.PixelOffsetMode = System.Drawing.Drawing2D.PixelOffsetMode.HighSpeed;
+        e.Graphics.SmoothingMode = System.Drawing.Drawing2D.SmoothingMode.HighSpeed;
+
+
+
         foreach(var element in _elements)
         {
             element.PreRender(e.Graphics);
@@ -39,10 +53,16 @@ public partial class formMain : Form
         foreach(var element in _elements)
         {
             element.Render(e.Graphics);
+            if(DetectMouse(element.GetRectangle()))
+            {
+
+            }
         }
-        foreach(var element in _elements)
+        foreach (var element in _elements)
         {
             element.PostRender(e.Graphics);
         }
     }
+
+
 }

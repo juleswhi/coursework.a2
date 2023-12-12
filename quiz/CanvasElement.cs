@@ -1,5 +1,10 @@
 ﻿namespace quiz;
 
+enum JustType
+{
+    Center
+}
+
 interface ICanvasElement
 {
     public Brush Brush { get; set; }
@@ -35,7 +40,6 @@ class CanvasText : ICanvasElement, ICanvasText
         Str = str;
         Location = loc;
         Size = Font.GetTextSize(Str);
-
     }
 
     public void PreRender(Graphics g)
@@ -43,7 +47,6 @@ class CanvasText : ICanvasElement, ICanvasText
     public void Render(Graphics g)
     {
         // Dynamically grab the location
-        var loc = Location();
         g.DrawString(Str, Font, Brush, this.AccountForSize());
     }
     public void PostRender(Graphics g)
@@ -59,13 +62,13 @@ class CanvasBox : ICanvasElement
     public CanvasBox(Brush? brush, Size size, Func<PointF> loc)
     {
         Brush = Brush == null ? this.GetDefaultBrush() : brush!;
-        Location = loc;
         Size = size;
+        Location = loc.JustifyCenter(Size);
     }
 
     public void PreRender(Graphics g)
     {
-        g.FillRectangle(Brush, new(Point.Round(this.AccountForSize()), Size));
+        g.FillRectangle(Brush, new(Location().Round(), Size));
     }
 
     public virtual void Render(Graphics g)
@@ -78,17 +81,20 @@ class CanvasBox : ICanvasElement
 sealed class CanvasButton : CanvasBox, ICanvasText
 {
     public string Str { get; set; }
+    public PointF StrLocation { get; set; }
     public Brush TextBrush { get; set; }
     public Font Font { get; set; }
-    public CanvasButton(string str, Font font, Brush backBrush, Brush textBrush, Size size, Func<PointF> loc) : base(backBrush, size, loc)
+    public CanvasButton(string str, Font font, Brush? backBrush, Brush textBrush, Size size, Func<PointF> loc) : base(backBrush, size, loc)
     {
         Str = str;
         Font = font;
         TextBrush = textBrush;
+        Size textSize = Str.GetSize(Font);
+        StrLocation = loc.JustifyCenter(Size)().AccountForTextSize(Str, Font);
     }
 
     public override void Render(Graphics g)
     {
-        g.DrawString(Str, Font, Brush, this.AccountForSize(Str));
+        g.DrawString(Str, Font, TextBrush, StrLocation);
     }
 }
