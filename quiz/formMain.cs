@@ -21,21 +21,20 @@ public partial class formMain : Form
         _c.Dock = DockStyle.Fill;
 
         // Add the banner
-        _elements.Add(new CanvasText("Main Menu", _font, Brushes.Pink, () => _c.GetCenter(0, _c.Top - 100)));
-        _elements.Add(new CanvasButton("Button", _font, backBrush: null, textBrush: Brushes.White, _c.GetDefaultBoxSize(), () => _c.GetCenterControl()));
+        _elements.Add(new CanvasText("Main Menu", _font, new BrushTypes(Brushes.Pink, Brushes.LightPink), () => _c.GetCenter(0, _c.Top - 100)));
+        _elements.Add(new CanvasButton("EXE", _font, new BrushTypes(Brushes.Gray, Brushes.LightGray), new BrushTypes(Brushes.Black, Brushes.DarkGray), _c.GetDefaultBoxSize(), () => _c.GetCenterControl()));
 
         // 60~ fps
         System.Timers.Timer t = new(16);
         t.Start();
-        t.Elapsed += (s, e) => _c.Refresh();
+        t.Elapsed += (s, e) =>
+        {
+            Helper.MouseLocation = PointToClient(MousePosition);
+            _c.Refresh();
+        };
 
     }
-
-    public bool DetectMouse(Rectangle rectangle)
-    {
-        if(new(PointToClient(MousePosition), new Size(20,20))/)
-    }
-
+    
     private void _c_Paint(object? sender, PaintEventArgs e)
     {
         e.Graphics.CompositingMode = System.Drawing.Drawing2D.CompositingMode.SourceOver;
@@ -44,24 +43,28 @@ public partial class formMain : Form
         e.Graphics.PixelOffsetMode = System.Drawing.Drawing2D.PixelOffsetMode.HighSpeed;
         e.Graphics.SmoothingMode = System.Drawing.Drawing2D.SmoothingMode.HighSpeed;
 
-
-
         foreach(var element in _elements)
         {
+            if (element.GetRectangle().GetMouseOver())
+            {
+                element.Selected = true;
+            }
+            else
+            {
+                element.Selected = false;
+            }
+
             element.PreRender(e.Graphics);
         }
-        foreach(var element in _elements)
+        foreach (var element in _elements)
         {
             element.Render(e.Graphics);
-            if(DetectMouse(element.GetRectangle()))
-            {
-
-            }
         }
         foreach (var element in _elements)
         {
             element.PostRender(e.Graphics);
         }
+        // e.Graphics.DrawLine(Pens.DarkGreen, new(_c.Width / 2, 0), new(_c.Width / 2, _c.Height));
     }
 
 

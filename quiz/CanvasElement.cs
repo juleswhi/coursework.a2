@@ -1,13 +1,9 @@
 ﻿namespace quiz;
-
-enum JustType
-{
-    Center
-}
-
+record BrushTypes(Brush Default, Brush Selected);
 interface ICanvasElement
 {
-    public Brush Brush { get; set; }
+    public bool Selected { get; set; }
+    public BrushTypes Brush { get; set; }
     public Func<PointF> Location { get; set; }
     public Size Size { get; set; }
     // This will render before everything else, ie: Button Backgrounds
@@ -28,12 +24,13 @@ interface ICanvasText
 class CanvasText : ICanvasElement, ICanvasText 
 {
     public Font Font { get; set; }
-    public Brush Brush { get; set; }
+    public BrushTypes Brush { get; set; }
     public string Str { get; set; }
     public Func<PointF> Location { get; set; }
     public Size Size { get; set; }
+    public bool Selected { get; set; } = false;
 
-    public CanvasText(string str, Font font, Brush brush, Func<PointF> loc)
+    public CanvasText(string str, Font font, BrushTypes brush, Func<PointF> loc)
     {
         Font = font;
         Brush = brush;
@@ -47,7 +44,7 @@ class CanvasText : ICanvasElement, ICanvasText
     public void Render(Graphics g)
     {
         // Dynamically grab the location
-        g.DrawString(Str, Font, Brush, this.AccountForSize());
+        g.DrawString(Str, Font, Selected ? Brush.Selected : Brush.Default, this.AccountForSize());
     }
     public void PostRender(Graphics g)
     {}
@@ -55,20 +52,22 @@ class CanvasText : ICanvasElement, ICanvasText
 
 class CanvasBox : ICanvasElement
 {
-    public Brush Brush { get; set; }
+    public BrushTypes Brush { get; set; }
     public Func<PointF> Location { get; set; }
     public Size Size { get; set; }
 
-    public CanvasBox(Brush? brush, Size size, Func<PointF> loc)
+    public bool Selected { get; set; }
+
+    public CanvasBox(BrushTypes brush, Size size, Func<PointF> loc)
     {
-        Brush = Brush == null ? this.GetDefaultBrush() : brush!;
+        Brush = brush;
         Size = size;
         Location = loc.JustifyCenter(Size);
     }
 
     public void PreRender(Graphics g)
     {
-        g.FillRectangle(Brush, new(Location().Round(), Size));
+        g.FillRectangle(Selected ? Brush.Selected : Brush.Default, new(Location().Round(), Size));
     }
 
     public virtual void Render(Graphics g)
@@ -81,20 +80,20 @@ class CanvasBox : ICanvasElement
 sealed class CanvasButton : CanvasBox, ICanvasText
 {
     public string Str { get; set; }
-    public PointF StrLocation { get; set; }
-    public Brush TextBrush { get; set; }
+    public Func<PointF> StrLocation { get; set; }
+    public BrushTypes TextBrush { get; set; }
     public Font Font { get; set; }
-    public CanvasButton(string str, Font font, Brush? backBrush, Brush textBrush, Size size, Func<PointF> loc) : base(backBrush, size, loc)
+    public CanvasButton(string str, Font font, BrushTypes backBrush, BrushTypes textBrush, Size size, Func<PointF> loc) : base(backBrush, size, loc)
     {
         Str = str;
         Font = font;
         TextBrush = textBrush;
         Size textSize = Str.GetSize(Font);
-        StrLocation = loc.JustifyCenter(Size)().AccountForTextSize(Str, Font);
+        StrLocation = loc.JustifyCenter(Size);
     }
 
     public override void Render(Graphics g)
     {
-        g.DrawString(Str, Font, TextBrush, StrLocation);
+        g.DrawString(Str, Font, Selected ? TextBrush.Selected : TextBrush.Default, new PointF(StrLocation().X + (int)(0.5*Size.Width) - (int)(0.5*Str.GetSize(Font).Width), StrLocation().Y + (int)(0.5*Size.Height) - (int)(0.5*Str.GetSize(Font).Height)));
     }
 }

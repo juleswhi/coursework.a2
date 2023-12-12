@@ -4,6 +4,16 @@ namespace quiz;
 
 internal static class Helper
 {
+    public static PointF MouseLocation { get; set; } 
+
+    public static bool GetMouseOver(this Rectangle rectangle)
+    {
+        if (new Rectangle(MouseLocation.Round(), new Size(5, 5)).IntersectsWith(rectangle))
+        {
+            return true;
+        }
+        return false;
+    }
     public static Rectangle GetRectangle<T>(this T control) where T : ICanvasElement
     {
         return new Rectangle(control.Location().Round(), control.Size);
