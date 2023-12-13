@@ -1,85 +1,111 @@
 ﻿namespace quiz;
 
-internal class View 
+internal class View
 {
-    public static PictureBox Current { get; set; } = new();
-    private PictureBox canvas;
+    public static View Current { get; set; } = new(new(), new());
+    public PictureBox Canvas { get; set; }
     private List<ICanvasElement> _elements;
 
-    public View(Form form, List<ICanvasElement> elements)
-    {
-        canvas = new();
-        _elements = elements;
+    // ~60 fps 
+    System.Timers.Timer timer = new(16);
+    public bool Stopped { get; set; } = false;
 
+    public View(List<ICanvasElement> elements, PictureBox canvas)
+    {
+        Canvas = canvas;
+        _elements = elements;
+    }
+
+    public void Stop()
+    {
+        Canvas.Paint -= Paint!;
+        timer.Stop();
+        Stopped = true;
+    }
+
+    public void Initialize()
+    {
         System.Timers.Timer timer = new(16);
 
         timer.Elapsed += (s, e) =>
         {
-            if (Control.MouseButtons == MouseButtons.Left)
+            if (Stopped)
             {
-                foreach(var element in _elements)
-                {
-                    element.Click();
-                }
+                timer.Stop();
+                return;
+            }
+            if (Helper.timeSinceLastClick.ElapsedMilliseconds <= 200) return;
+            if (Control.MouseButtons != MouseButtons.Left) return;
+
+            Helper.timeSinceLastClick.Restart();
+
+            foreach (var element in _elements.Where(x => x.Selected))
+            {
+                element.Click();
             }
         };
 
         timer.Start();
     }
 
-    public PictureBox Run()
+   
+    public void Run()
     {
-        canvas.Show();
-        Current = canvas;
-        canvas.BorderStyle = BorderStyle.None;
-        canvas.BackColor = Color.FromArgb(113, 91, 100);
+        Canvas.Show();
+        Current = this;
+        Canvas.BorderStyle = BorderStyle.None;
+        Canvas.BackColor = Color.FromArgb(113, 91, 100);
 
-        canvas.Anchor = AnchorStyles.None;
-        canvas.Dock = DockStyle.Fill;
-        canvas.BringToFront();
+        Canvas.Anchor = AnchorStyles.None;
+        Canvas.Dock = DockStyle.Fill;
+        Canvas.BringToFront();
 
-        canvas.Paint += (s, e) =>
-        {
-            e.Graphics.CompositingMode = System.Drawing.Drawing2D.CompositingMode.SourceOver;
-            e.Graphics.CompositingQuality = System.Drawing.Drawing2D.CompositingQuality.HighSpeed;
-            e.Graphics.InterpolationMode = System.Drawing.Drawing2D.InterpolationMode.NearestNeighbor;
-            e.Graphics.PixelOffsetMode = System.Drawing.Drawing2D.PixelOffsetMode.HighSpeed;
-            e.Graphics.SmoothingMode = System.Drawing.Drawing2D.SmoothingMode.HighSpeed;
-
-            foreach(var element in _elements)
-            {
-                if(element.GetRectangle().GetMouseOver())
-                {
-                    element.Selected = true;
-                }
-                else
-                {
-                    element.Selected = false;
-                }
-
-                element.PreRender(e.Graphics);
-            }
-
-            foreach(var element in _elements)
-            {
-                element.Render(e.Graphics);
-            }
-
-            foreach(var element in _elements)
-            {
-                element.PostRender(e.Graphics);
-            }
-
-        };
-
-        // ~60 fps 
-        System.Timers.Timer timer = new(16);
-        timer.Start();
+        Canvas.Paint += Paint!;
+       
         timer.Elapsed += (s, e) =>
         {
-            canvas.Refresh();
+            if(Stopped)
+            {
+                timer.Stop();
+                return;
+            }
+            Canvas.Refresh();
         };
 
-        return canvas;
+        timer.Start();
+    }
+
+
+    private void Paint(object sender, PaintEventArgs e)
+    {
+        e.Graphics.CompositingMode = System.Drawing.Drawing2D.CompositingMode.SourceOver;
+        e.Graphics.CompositingQuality = System.Drawing.Drawing2D.CompositingQuality.HighSpeed;
+        e.Graphics.InterpolationMode = System.Drawing.Drawing2D.InterpolationMode.NearestNeighbor;
+        e.Graphics.PixelOffsetMode = System.Drawing.Drawing2D.PixelOffsetMode.HighSpeed;
+        e.Graphics.SmoothingMode = System.Drawing.Drawing2D.SmoothingMode.HighSpeed;
+
+        foreach (var element in _elements)
+        {
+            if (element.GetRectangle().GetMouseOver())
+            {
+                element.Selected = true;
+            }
+            else
+            {
+                element.Selected = false;
+            }
+
+            element.PreRender(e.Graphics);
+        }
+
+        foreach (var element in _elements)
+        {
+            element.Render(e.Graphics);
+        }
+
+        foreach (var element in _elements)
+        {
+            element.PostRender(e.Graphics);
+        }
     }
 }

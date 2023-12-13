@@ -1,9 +1,11 @@
-﻿using System.Reflection.Metadata.Ecma335;
+﻿using System.Diagnostics;
+using System.Reflection.Metadata.Ecma335;
 
 namespace quiz;
 
 internal static class Helper
 {
+    public static Stopwatch timeSinceLastClick = new();
     public static Dictionary<int, Font> Fonts = new()
     {
         { 1, new Font(FontFamily.GenericMonospace, 10) },
@@ -33,7 +35,7 @@ internal static class Helper
     }
     public static Rectangle GetRectangle<T>(this T control) where T : ICanvasElement
     {
-        return new Rectangle(control.Location(View.Current).Round(), control.Size);
+        return new Rectangle(control.Location(View.Current.Canvas).Round(), control.Size);
     }
     public static Func<PictureBox, PointF> JustifyCenter(this Func<PictureBox, PointF> func, Size size) {
         return (c) => func(c).AccountForSize(size);
@@ -60,7 +62,7 @@ internal static class Helper
     }
     public static Size GetDefaultBoxSize<T>(this T control) where T : PictureBox
     {
-        return new Size(250, 100);
+        return new Size(200, 100);
     }
     public static PointF AccountForSize(this PointF point, Size size) 
     {
@@ -73,13 +75,13 @@ internal static class Helper
     }
     public static PointF AccountForSize<T>(this T control) where T : ICanvasElement
     {
-        var loc = control.Location(View.Current);
+        var loc = control.Location(View.Current.Canvas);
         return new PointF(loc.X - (int)(0.5 * control.Size.Width), loc.Y - (int)(0.5 * control.Size.Height));
     }
     public static PointF AccountForSize<T>(this T control, string str) where T : ICanvasText
     {
         var size = control.Font.GetTextSize(str);
-        var loc = control.Location(View.Current);
+        var loc = control.Location(View.Current.Canvas);
         return new PointF(loc.X - (int)(0.5 * size.Width), loc.Y - (int)(0.5 * size.Width));
     } 
     public static PointF AccountForSize(this Rectangle rect)
@@ -89,7 +91,7 @@ internal static class Helper
 
     public static PointF GetCenterElement<T>(this T control) where T : ICanvasElement
     {
-        var loc = control.Location(View.Current);
+        var loc = control.Location(View.Current.Canvas);
         return new PointF(loc.X / 2, loc.Y / 2);
     }
     public static PointF GetCenterControl<T>(this T control) where T : Control
