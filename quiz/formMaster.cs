@@ -1,4 +1,5 @@
 ﻿using static quiz.formMaster.MenuType;
+using static quiz.FontSize;
 namespace quiz;
 
 public partial class formMaster : Form
@@ -6,14 +7,24 @@ public partial class formMaster : Form
     private PictureBox currentCanvas { get; set; } = new();
     public formMaster()
     {
+        Helper.Form = this;
         InitializeComponent();
         Size = new(Size.Width, Size.Height + 175);
         CenterToScreen();
+        Helper.Fonts = new()
+        {
+            { HeadingOne, new Font(FontFamily.GenericMonospace, 10) },
+            { HeadingTwo, new Font(FontFamily.GenericMonospace, 20) },
+            { HeadingThree, new Font(FontFamily.GenericMonospace, 30) },
+            { HeadingFour, new Font(FontFamily.GenericMonospace, 40) },
+            { HeadingFive, new Font(FontFamily.GenericMonospace, 50) },
+        };
 
-        Helper.timeSinceLastClick.Start();
 
-        var initialView = ViewBuilder[MainMenu](this);
-        initialView.Initialize();
+        Helper.TimeSinceLastClick = new();
+        Helper.TimeSinceLastClick.Start();
+
+        var initialView = ViewBuilder[MainMenu]();
         initialView.Run();
         currentCanvas = initialView.Canvas;
 
@@ -22,9 +33,7 @@ public partial class formMaster : Form
         System.Timers.Timer timer = new(16);
 
         timer.Elapsed += (s, e) =>
-        {
-            Helper.MouseLocation = PointToClient(MousePosition);
-        };
+            Helper.Form.Invoke(() => Helper.MouseLocation = PointToClient(MousePosition));
 
         timer.Start();
     }
@@ -37,83 +46,68 @@ public partial class formMaster : Form
         Profile
     }
 
-    
-    private static Dictionary<MenuType, Func<formMaster, View>> ViewBuilder = new()
+
+    private static Dictionary<MenuType, Func<View>> ViewBuilder = new()
     {
         {
-            MainMenu, (form) => new View(new List<ICanvasElement>()
+            MainMenu, () => new View(new List<ICanvasElement>()
             {
-                new CanvasText("Main Menu", Helper.Fonts[3], Helper.Colourscheme[4], (_c) => _c.GetCenter(0, _c.Top - 225)),
-                new CanvasButton("Play Quiz!", Helper.Fonts[2], Helper.Colourscheme[1], Helper.Colourscheme[3], (_c) => _c.GetDefaultBoxSize(), (_c) => _c.GetCenter(0, -125), () =>
+                new CanvasText("Main Menu", null, () => Helper.GetCenter(0, View.Current.Canvas.Top - 225)),
+                new CanvasButton("Play Quiz!", null, null, () => Helper.GetCenter(0, -125), () =>
                 {
-                    var quiz = ViewBuilder?[Quiz](form);
-                    View.Current.Stop();
-
-                    quiz?.Initialize();
-                    quiz?.Run();
+                    ViewBuilder?[Quiz]().Run();
                 }),
-                new CanvasButton("Leaderboard", Helper.Fonts[2], Helper.Colourscheme[1], Helper.Colourscheme[3], (_c) => _c.GetDefaultBoxSize(), (_c) => _c.GetCenter(0, 0), () =>
+                new CanvasButton("Leaderboard", null, null, () => Helper.GetCenter(0, 0), () =>
                 {
-                    var leaderboard = ViewBuilder?[Leaderboard](form);
-                    View.Current.Stop();
-
-                    leaderboard?.Initialize();
-                    leaderboard?.Run();
+                    ViewBuilder?[Leaderboard]().Run();
                 }),
-                new CanvasButton("Settings", Helper.Fonts[2], Helper.Colourscheme[1], Helper.Colourscheme[3], (_c) => _c.GetDefaultBoxSize(), (_c) => _c.GetCenter(0, 125), () =>
-                {
-                }),
-                new CanvasButton("Quiz", Helper.Fonts[2], Helper.Colourscheme[1], Helper.Colourscheme[3], (_c) => _c.GetDefaultBoxSize(), (_c) => _c.GetCenter(0, 250), () =>
+                new CanvasButton("Settings", null, null, () => Helper.GetCenter(0, 125), () =>
+                {}),
+                new CanvasButton("Quiz", null, null, () => Helper.GetCenter(0, 250), () =>
                 {
                     View.Current.Stop();
                     Environment.Exit(0);
                 }),
-            }, form.currentCanvas)
+            }, Helper.Form.currentCanvas)
         },
+
         {
-            Quiz, (form) => new View(new List<ICanvasElement>()
+            Quiz, () => new View(new List<ICanvasElement>()
             {
-                new CanvasText("Question Title", Helper.Fonts[3], Helper.Colourscheme[4], (_c) => _c.GetCenter(0, _c.Top - 175)),
-                new CanvasButton("Answer 1", Helper.Fonts[2], Helper.Colourscheme[1], Helper.Colourscheme[3], (_c) => _c.GetDefaultBoxSize(), (_c) => _c.GetCenter(-125, -75), () =>
+                new CanvasText("Question Title", null, () => Helper.GetCenter(0, View.Current.Canvas.Top - 175)),
+                new CanvasButton("Answer 1", null, null, () => Helper.GetCenter(-125, -75), () =>
                 {
-                    var main = ViewBuilder?[MainMenu](form);
-                    View.Current.Stop();
-                    main?.Initialize();
-                    main?.Run();
+                    ViewBuilder?[MainMenu]().Run();
                 }),
-                new CanvasButton("Answer 2", Helper.Fonts[2], Helper.Colourscheme[1], Helper.Colourscheme[3], (_c) => _c.GetDefaultBoxSize(), (_c) => _c.GetCenter(125, -75), () =>
-                {
-
-                }),
-                new CanvasButton("Answer 3", Helper.Fonts[2], Helper.Colourscheme[1], Helper.Colourscheme[3], (_c) => _c.GetDefaultBoxSize(), (_c) => _c.GetCenter(-125, 50), () =>
-                {
-
-                }),
-                new CanvasButton("Answer 4", Helper.Fonts[2], Helper.Colourscheme[1], Helper.Colourscheme[3], (_c) => _c.GetDefaultBoxSize(), (_c) => _c.GetCenter(125, 50), () =>
-                {
-
-                }),
-            }, form.currentCanvas)
+                new CanvasButton("Answer 2", null, null, () => Helper.GetCenter(125, -75), () =>
+                {}),
+                new CanvasButton("Answer 3", null, null, () => Helper.GetCenter(-125, 50), () =>
+                {}),
+                new CanvasButton("Answer 4", null, null, () => Helper.GetCenter(125, 50), () =>
+                {}),
+            }, Helper.Form.currentCanvas)
         },
+
         {
-            Profile, (form) => new View(new List<ICanvasElement>()
+            Profile, () => new View(new List<ICanvasElement>()
             {
-                new CanvasText("Users' Name", Helper.Fonts[3], Helper.Colourscheme[4], (_c) => _c.GetCenter(0, _c.Top - 175)),
-            }, form.currentCanvas)
+                new CanvasText("Users' Name", null, () => Helper.GetCenter(0, View.Current.Canvas.Top - 175)),
+            }, Helper.Form.currentCanvas)
         },
+
         {
-            Leaderboard, (form) => new View(new List<ICanvasElement>()
+            Leaderboard, () => new View(new List<ICanvasElement>()
             {
-                new CanvasText("Leaderboard", Helper.Fonts[3], Helper.Colourscheme[4], (_c) => _c.GetCenter(0, _c.Top - 175)),
-                new CanvasButton("Back", Helper.Fonts[2], Helper.Colourscheme[1], Helper.Colourscheme[3], (_c) => _c.GetDefaultBoxSize(), (_c) => _c.GetCenter(0, 0), () =>
+                new CanvasText("Leaderboard", null, () => Helper.GetCenter(0, View.Current.Canvas.Top - 175)),
+                new CanvasButton("Back", null, null, () => Helper.GetCenter(0, 0), () =>
                 {
-                    var main = ViewBuilder?[MainMenu](form);
-                    View.Current.Stop();
-                    main?.Initialize();
-                    main?.Run();
+                    ViewBuilder?[MainMenu]().Run();
 
                 }),
-            }, form.currentCanvas)
+                new CanvasTextBox(null, null, () => Helper.GetCenter(0, -150), () => {
+                    return;
+                })
+            }, Helper.Form.currentCanvas)
         }
     };
 }

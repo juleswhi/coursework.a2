@@ -23,8 +23,10 @@ internal class View
         Stopped = true;
     }
 
-    public void Initialize()
+    public void Run()
     {
+        Current.Stop();
+
         System.Timers.Timer timer = new(16);
 
         timer.Elapsed += (s, e) =>
@@ -34,23 +36,18 @@ internal class View
                 timer.Stop();
                 return;
             }
-            if (Helper.timeSinceLastClick.ElapsedMilliseconds <= 200) return;
+            if (Helper.TimeSinceLastClick.ElapsedMilliseconds <= 200) return;
             if (Control.MouseButtons != MouseButtons.Left) return;
 
-            Helper.timeSinceLastClick.Restart();
+            Helper.TimeSinceLastClick.Restart();
 
             foreach (var element in _elements.Where(x => x.Selected))
             {
-                element.Click();
+                element.OnClick();
             }
         };
 
         timer.Start();
-    }
-
-   
-    public void Run()
-    {
         Canvas.Show();
         Current = this;
         Canvas.BorderStyle = BorderStyle.None;
@@ -61,15 +58,15 @@ internal class View
         Canvas.BringToFront();
 
         Canvas.Paint += Paint!;
-       
+
         timer.Elapsed += (s, e) =>
         {
-            if(Stopped)
+            if (Stopped)
             {
                 timer.Stop();
                 return;
             }
-            Canvas.Refresh();
+            Helper.Form.Invoke(Canvas.Refresh);
         };
 
         timer.Start();
@@ -115,6 +112,6 @@ class QuestionView : View
 {
     public QuestionView(List<ICanvasElement> elements, PictureBox canvas) : base(elements, canvas)
     {
-          
+
     }
 }
