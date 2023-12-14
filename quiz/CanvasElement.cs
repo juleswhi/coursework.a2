@@ -129,15 +129,13 @@ class CanvasBox : ICanvasElement
     public virtual void PreRender(Graphics g)
     {
         int radius = 20;
-        float x = Location().X;
-        float y = Location().Y;
-        float width = Size().Width;
-        float height = Size().Height;
+        var loc = Location();
+        var size = Size();
         var path = new GraphicsPath();
-        path.AddArc(x, y, radius, radius, 180, 90);
-        path.AddArc(x + width - radius, y, radius, radius, 270, 90);
-        path.AddArc(x + width - radius, y + height - radius, radius, radius, 0, 90);
-        path.AddArc(x, y + height - radius, radius, radius, 90, 90);
+        path.AddArc(loc.X, loc.Y, radius, radius, 180, 90);
+        path.AddArc(loc.X + size.Width - radius, loc.Y, radius, radius, 270, 90);
+        path.AddArc(loc.X + size.Width - radius, loc.Y + size.Height - radius, radius, radius, 0, 90);
+        path.AddArc(loc.X, loc.Y + size.Height - radius, radius, radius, 90, 90);
         path.CloseFigure();
         g.FillPath(Selected ? Brush.Selected : Brush.Default, path);
     }
