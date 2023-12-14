@@ -4,16 +4,38 @@ interface ICanvasElement
 {
     public bool Selected { get; set; }
     public BrushTypes Brush { get; set; }
-    public Action OnClick { get; set; }
-    public Func<PictureBox, PointF> Location { get; set; }
-    public Size Size { get; set; }
-    // This will render before everything else, ie: Button Backgrounds
-    public void PreRender(Graphics g);
-    // This will render after Pre, ie: Text
-    public void Render(Graphics g);
-    // This will render last, ie: Post
-    public void PostRender(Graphics g);
+    /// <summary>
+    /// Called when any mouse click is registered.
+    /// </summary>
     public void Click();
+    /// <summary>
+    /// Custom behaviour for click. Commonly used to open new View
+    /// </summary>
+    public Action OnClick { get; set; }
+    /// <summary>
+    /// Returns a function pointer so it dynamically updates location
+    /// This is evaluated every render cycle
+    /// </summary>
+    public Func<PictureBox, PointF> Location { get; set; }
+    /// <summary>
+    /// Max Size of the element
+    /// </summary>
+    public Size Size { get; set; }
+    /// <summary>
+    /// First Render Cycle. Used for base elements such as Boxes
+    /// </summary>
+    /// <param name="g">Graphics object of <c>PictureBox</c></param>
+    public void PreRender(Graphics g);
+    /// <summary>
+    /// Second Render Cycle. Used for secondary elements like Text
+    /// </summary>
+    /// <param name="g">Graphics object of <c>PictureBox</c></param>
+    public void Render(Graphics g);
+    /// <summary>
+    /// Last Render Cycle. Used for Post
+    /// </summary>
+    /// <param name="g"></param>
+    public void PostRender(Graphics g);
 }
 
 interface ICanvasText

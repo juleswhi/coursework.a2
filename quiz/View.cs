@@ -109,3 +109,12 @@ internal class View
         }
     }
 }
+
+
+class QuestionView : View
+{
+    public QuestionView(List<ICanvasElement> elements, PictureBox canvas) : base(elements, canvas)
+    {
+          
+    }
+}

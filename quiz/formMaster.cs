@@ -7,7 +7,7 @@ public partial class formMaster : Form
     public formMaster()
     {
         InitializeComponent();
-        Size = new(Size.Width, Size.Height + 100);
+        Size = new(Size.Width, Size.Height + 175);
         CenterToScreen();
 
         Helper.timeSinceLastClick.Start();
@@ -33,6 +33,7 @@ public partial class formMaster : Form
     {
         MainMenu,
         Quiz,
+        Leaderboard,
         Profile
     }
 
@@ -42,8 +43,8 @@ public partial class formMaster : Form
         {
             MainMenu, (form) => new View(new List<ICanvasElement>()
             {
-                new CanvasText("Main Menu", Helper.Fonts[3], Helper.Colourscheme[4], (_c) => _c.GetCenter(0, _c.Top - 175)),
-                new CanvasButton("Play Quiz!", Helper.Fonts[2], Helper.Colourscheme[1], Helper.Colourscheme[3], (_c) => _c.GetDefaultBoxSize(), (_c) => _c.GetCenter(0, -75), () =>
+                new CanvasText("Main Menu", Helper.Fonts[3], Helper.Colourscheme[4], (_c) => _c.GetCenter(0, _c.Top - 225)),
+                new CanvasButton("Play Quiz!", Helper.Fonts[2], Helper.Colourscheme[1], Helper.Colourscheme[3], (_c) => _c.GetDefaultBoxSize(), (_c) => _c.GetCenter(0, -125), () =>
                 {
                     var quiz = ViewBuilder?[Quiz](form);
                     View.Current.Stop();
@@ -51,11 +52,21 @@ public partial class formMaster : Form
                     quiz?.Initialize();
                     quiz?.Run();
                 }),
-                new CanvasButton("Leaderboard", Helper.Fonts[2], Helper.Colourscheme[1], Helper.Colourscheme[3], (_c) => _c.GetDefaultBoxSize(), (_c) => _c.GetCenter(0, 50), () =>
+                new CanvasButton("Leaderboard", Helper.Fonts[2], Helper.Colourscheme[1], Helper.Colourscheme[3], (_c) => _c.GetDefaultBoxSize(), (_c) => _c.GetCenter(0, 0), () =>
+                {
+                    var leaderboard = ViewBuilder?[Leaderboard](form);
+                    View.Current.Stop();
+
+                    leaderboard?.Initialize();
+                    leaderboard?.Run();
+                }),
+                new CanvasButton("Settings", Helper.Fonts[2], Helper.Colourscheme[1], Helper.Colourscheme[3], (_c) => _c.GetDefaultBoxSize(), (_c) => _c.GetCenter(0, 125), () =>
                 {
                 }),
-                new CanvasButton("Settings", Helper.Fonts[2], Helper.Colourscheme[1], Helper.Colourscheme[3], (_c) => _c.GetDefaultBoxSize(), (_c) => _c.GetCenter(0, 175), () =>
+                new CanvasButton("Quiz", Helper.Fonts[2], Helper.Colourscheme[1], Helper.Colourscheme[3], (_c) => _c.GetDefaultBoxSize(), (_c) => _c.GetCenter(0, 250), () =>
                 {
+                    View.Current.Stop();
+                    Environment.Exit(0);
                 }),
             }, form.currentCanvas)
         },
@@ -88,6 +99,20 @@ public partial class formMaster : Form
             Profile, (form) => new View(new List<ICanvasElement>()
             {
                 new CanvasText("Users' Name", Helper.Fonts[3], Helper.Colourscheme[4], (_c) => _c.GetCenter(0, _c.Top - 175)),
+            }, form.currentCanvas)
+        },
+        {
+            Leaderboard, (form) => new View(new List<ICanvasElement>()
+            {
+                new CanvasText("Leaderboard", Helper.Fonts[3], Helper.Colourscheme[4], (_c) => _c.GetCenter(0, _c.Top - 175)),
+                new CanvasButton("Back", Helper.Fonts[2], Helper.Colourscheme[1], Helper.Colourscheme[3], (_c) => _c.GetDefaultBoxSize(), (_c) => _c.GetCenter(0, 0), () =>
+                {
+                    var main = ViewBuilder?[MainMenu](form);
+                    View.Current.Stop();
+                    main?.Initialize();
+                    main?.Run();
+
+                }),
             }, form.currentCanvas)
         }
     };
