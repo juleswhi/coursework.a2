@@ -1,7 +1,6 @@
 ﻿using static quiz.FontSize;
 using static quiz.Colourscheme.Colours;
 using System.Diagnostics;
-using System.Security.Cryptography.Xml;
 
 namespace quiz;
 
@@ -16,6 +15,7 @@ public enum FontSize
 
 internal static class Helper
 {
+    public static CanvasTextBox? CurrentTextBox;
     public static formMaster Form = new();
     /// <summary>
     /// Stopwatch stores time since last time the mouse was clicked.
@@ -50,7 +50,7 @@ internal static class Helper
     }
     public static BrushTypes GetTextColours()
     {
-        return new(Colourscheme.BrushDictionary[RESEDA_GREEN], Colourscheme.BrushDictionary[WENGE]);
+        return new(Colourscheme.BrushDictionary[RESEDA_GREEN], Colourscheme.BrushDictionary[RESEDA_GREEN]);
     }
 
     /// <summary>
@@ -73,6 +73,9 @@ internal static class Helper
     public static Size DefaultCanvasBoxSize()
     {
         return View.Current.Canvas.GetDefaultBoxSize();
+    }
+    public static Size DefaultTextBoxSize() {
+        return new Size(500, 100);
     }
 
     /// <summary>

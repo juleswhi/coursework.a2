@@ -1,4 +1,5 @@
-﻿using System.Drawing.Drawing2D;
+﻿using System.Text;
+using System.Drawing.Drawing2D;
 using static quiz.FontSize;
 namespace quiz;
 record BrushTypes(Brush Default, Brush Selected);
@@ -83,7 +84,7 @@ class CanvasText : ICanvasElement, ICanvasText
     /// <param name="loc">Func pointer for location</param>
     public CanvasText(string str, Font? font, Func<PointF> loc)
     {
-        if(font is null)
+        if (font is null)
         {
             Font = Helper.Fonts[HeadingThree];
         }
@@ -157,7 +158,6 @@ sealed class CanvasButton : CanvasBox, ICanvasText
     public Font Font { get; set; }
     public CanvasButton(string str, Font? font, Func<Size>? size, Func<PointF> loc, Action onClick) : base(size, loc)
     {
-
         Str = str;
         Font = font == null ? Helper.Fonts[HeadingTwo] : font;
         TextBrush = Helper.GetTextColours();
@@ -176,24 +176,93 @@ sealed class CanvasButton : CanvasBox, ICanvasText
 
 class CanvasTextBox : CanvasBox, ICanvasElement
 {
+    public static bool ShiftPressed { get; set; } = false;
+    public static bool CapsToggled { get; set; } = false;
     public Font Font { get; set; }
-    public string Text { get; set; } = String.Empty;
+    public List<char> Text { get; set; } = new();
     public Func<PointF> TextLocation { get; set; }
     public BrushTypes TextBrush { get; set; }
     public override Action OnClick { get; set; }
+    public void KeyPress(Keys key)
+    {
+        switch (key)
+        {
+            case Keys.Space:
+                Text.Add(' ');
+                break;
+            case Keys.Back:
+                if (Text.Count > 0)
+                    Text.RemoveAt(Text.Count - 1);
+                break;
+            case Keys.Enter:
+                Text.Add('\n');
+                break;
+            case Keys.LShiftKey:
+            case Keys.ShiftKey:
+            case Keys.Shift:
+                ShiftPressed = true;
+                break;
+            case Keys.CapsLock:
+                CapsToggled = !CapsToggled;
+                break;
+            case Keys.Control:
+                break;
+            default:
+                if (ShiftPressed || CapsToggled)
+                {
+                    Text.Add(key.ToString()[0]);
+                }
+                else
+                {
+                    Text.Add(key.ToString().ToLower()[0]);
+                }
+                break;
+        }
+    }
 
     public CanvasTextBox(Font? font, Func<Size>? size, Func<PointF> loc, Action onClick) : base(size, loc)
     {
         Font = font == null ? Helper.Fonts[HeadingTwo] : font;
+        Size = size == null ? Helper.DefaultTextBoxSize : size;
         TextBrush = Helper.GetTextColours();
+        Location = loc.JustifyCenter(Size());
         TextLocation = loc.JustifyCenter(Size());
-        OnClick += () => { if (!Selected) return; };
+        OnClick += () =>
+        {
+            if (!Selected) return;
+            Helper.CurrentTextBox = this;
+        };
         OnClick += onClick;
     }
 
+    int verticalOffset = 0;
+    int lineNumber = 1;
+
     public override void Render(Graphics g)
     {
-        g.DrawString(Text, Font, Selected ? TextBrush.Selected : TextBrush.Default, new PointF(TextLocation().X + (int)(0.5 * Size().Width) - (int)(0.5 * Text.GetSize(Font).Width), TextLocation().Y + (int)(0.5 * Size().Height) - (int)(0.5 * Text.GetSize(Font).Height)));
+        List<string> text = new();
+        string text = GetString(Text);
+        Size size = text.GetSize(Font);
+        if (((Location().X + size.Width) / lineNumber) >= Location().X + Size().Width)
+        {
+            lineNumber++;
+            Text.Add('\n');
+        }
+        g.DrawString(GetString(Text), Font, Selected ? TextBrush.Selected : TextBrush.Default, new PointF(TextLocation().X, TextLocation().Y));
+    }
+    private List<string> GetString(List<char> chars)
+    {
+        int index = 0;
+        List<string> strs = new();
+        StringBuilder current = new();
+        foreach (var x in chars)
+        {
+            if(x == 'n') {
+                strs.Add(current.ToString());
+                current.Clear()
+            }
+            current.Append(x);
+        }
     }
 
 }

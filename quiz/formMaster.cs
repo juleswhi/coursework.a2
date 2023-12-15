@@ -7,6 +7,7 @@ public partial class formMaster : Form
     private PictureBox currentCanvas { get; set; } = new();
     public formMaster()
     {
+        DoubleBuffered = true;
         Helper.Form = this;
         InitializeComponent();
         Size = new(Size.Width, Size.Height + 175);
@@ -20,6 +21,17 @@ public partial class formMaster : Form
             { HeadingFive, new Font(FontFamily.GenericMonospace, 50) },
         };
 
+        KeyDown += (s, e) =>
+        {
+            Helper.CurrentTextBox?.KeyPress(e.KeyCode);
+        };
+
+        KeyUp += (s, e) =>
+        {
+            if (e.KeyCode != Keys.ShiftKey) return;
+
+            CanvasTextBox.ShiftPressed = false;
+        };
 
         Helper.TimeSinceLastClick = new();
         Helper.TimeSinceLastClick.Start();
@@ -99,12 +111,12 @@ public partial class formMaster : Form
             Leaderboard, () => new View(new List<ICanvasElement>()
             {
                 new CanvasText("Leaderboard", null, () => Helper.GetCenter(0, View.Current.Canvas.Top - 175)),
-                new CanvasButton("Back", null, null, () => Helper.GetCenter(0, 0), () =>
+                new CanvasButton("Back", null, null, () => Helper.GetCenter(0, 200), () =>
                 {
                     ViewBuilder?[MainMenu]().Run();
 
                 }),
-                new CanvasTextBox(null, null, () => Helper.GetCenter(0, -150), () => {
+                new CanvasTextBox(null, null, () => Helper.GetCenter(0, 0), () => {
                     return;
                 })
             }, Helper.Form.currentCanvas)
