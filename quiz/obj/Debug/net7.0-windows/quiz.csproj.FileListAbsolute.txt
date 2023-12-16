@@ -30,3 +30,7 @@ C:\Users\i hate windows\Documents\GitHub\coursework.as\quiz\obj\Debug\net7.0-win
 C:\Users\i hate windows\Documents\GitHub\coursework.as\quiz\obj\Debug\net7.0-windows\quiz.pdb
 C:\Users\i hate windows\Documents\GitHub\coursework.as\quiz\obj\Debug\net7.0-windows\quiz.genruntimeconfig.cache
 C:\Users\i hate windows\Documents\GitHub\coursework.as\quiz\obj\Debug\net7.0-windows\ref\quiz.dll
+C:\Users\ayo mr white\Documents\GitHub\coursework.as\quiz\bin\Debug\net7.0-windows\Newtonsoft.Json.dll
+C:\Users\ayo mr white\Documents\GitHub\coursework.as\quiz\obj\Debug\net7.0-windows\quiz.csproj.AssemblyReference.cache
+C:\Users\ayo mr white\Documents\GitHub\coursework.as\quiz\obj\Debug\net7.0-windows\quiz.csproj.CopyComplete
+C:\Users\ayo mr white\Documents\GitHub\coursework.as\quiz\bin\Debug\net7.0-windows\OneOf.dll

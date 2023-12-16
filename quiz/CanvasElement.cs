@@ -1,11 +1,20 @@
-﻿using System.Text;
-using System.Drawing.Drawing2D;
+﻿using static quiz.Helper;
 using static quiz.FontSize;
 namespace quiz;
-record BrushTypes(Brush Default, Brush Selected);
-interface ICanvasElement
+public record BrushTypes(Brush Default, Brush Selected);
+public interface ICanvasElement
 {
+    /// <summary>
+    /// Is true if mouse over
+    /// </summary>
     public bool Selected { get; set; }
+    /// <summary>
+    /// If the element is functional or not
+    /// </summary>
+    public bool Enabled { get; set; }
+    /// <summary>
+    /// Both a brush for selected and non-selected
+    /// </summary>
     public BrushTypes Brush { get; set; }
     /// <summary>
     /// Custom behaviour for click. Commonly used to open new View
@@ -37,14 +46,14 @@ interface ICanvasElement
     public void PostRender(Graphics g);
 }
 
-interface ICanvasText
+public interface ICanvasText
 {
     public Font Font { get; set; }
     public string Str { get; set; }
     public Func<PointF> Location { get; set; }
 }
 
-class CanvasText : ICanvasElement, ICanvasText
+public class CanvasText : ICanvasElement, ICanvasText
 {
     /// <summary>
     /// Font of the displayed text
@@ -74,6 +83,7 @@ class CanvasText : ICanvasElement, ICanvasText
     /// Checks if the element is selected / hovered over
     /// </summary>
     public bool Selected { get; set; } = false;
+    public bool Enabled { get; set; }
 
     /// <summary>
     /// Constructor for Text Element
@@ -86,17 +96,18 @@ class CanvasText : ICanvasElement, ICanvasText
     {
         if (font is null)
         {
-            Font = Helper.Fonts[HeadingThree];
+            Font = Fonts[HeadingThree];
         }
         else
         {
             Font = font;
         }
-        Brush = Helper.GetTextColours();
+        Brush = GetTextColours();
         Str = str;
         Location = loc;
         Size = () => Font.GetTextSize(Str);
-        OnClick += () => { if (!Selected) return; };
+        Enabled = true;
+        OnClick += () => { if (!Selected || !Enabled) return; };
     }
 
     public void PreRender(Graphics g)
@@ -111,34 +122,27 @@ class CanvasText : ICanvasElement, ICanvasText
 
 }
 
-class CanvasBox : ICanvasElement
+public class CanvasBox : ICanvasElement
 {
     public BrushTypes Brush { get; set; }
     public virtual Action OnClick { get; set; }
     public Func<PointF> Location { get; set; }
     public Func<Size> Size { get; set; }
     public bool Selected { get; set; }
+    public bool Enabled { get; set; }
 
     public CanvasBox(Func<Size>? size, Func<PointF> loc)
     {
-        Brush = Helper.GetButtonColours();
-        Size = size == null ? Helper.DefaultCanvasBoxSize : size;
+        Brush = GetButtonColours();
+        Size = size == null ? DefaultCanvasBoxSize : size;
         Location = loc.JustifyCenter(Size());
-        OnClick += () => { if (!Selected) return; };
+        Enabled = true;
+        OnClick += () => { if (!Selected || !Enabled) return; };
     }
 
     public virtual void PreRender(Graphics g)
     {
-        int radius = 20;
-        var loc = Location();
-        var size = Size();
-        var path = new GraphicsPath();
-        path.AddArc(loc.X, loc.Y, radius, radius, 180, 90);
-        path.AddArc(loc.X + size.Width - radius, loc.Y, radius, radius, 270, 90);
-        path.AddArc(loc.X + size.Width - radius, loc.Y + size.Height - radius, radius, radius, 0, 90);
-        path.AddArc(loc.X, loc.Y + size.Height - radius, radius, radius, 90, 90);
-        path.CloseFigure();
-        g.FillPath(Selected ? Brush.Selected : Brush.Default, path);
+        g.FillPath(Selected ? Brush.Selected : Brush.Default, GetRoundedCorners(Location(), Size()));
     }
 
     public virtual void Render(Graphics g)
@@ -149,7 +153,7 @@ class CanvasBox : ICanvasElement
 
 }
 
-sealed class CanvasButton : CanvasBox, ICanvasText
+public sealed class CanvasButton : CanvasBox, ICanvasText
 {
     public string Str { get; set; }
     public Func<PointF> StrLocation { get; set; }
@@ -159,11 +163,11 @@ sealed class CanvasButton : CanvasBox, ICanvasText
     public CanvasButton(string str, Font? font, Func<Size>? size, Func<PointF> loc, Action onClick) : base(size, loc)
     {
         Str = str;
-        Font = font == null ? Helper.Fonts[HeadingTwo] : font;
-        TextBrush = Helper.GetTextColours();
+        Font = font == null ? Fonts[HeadingTwo] : font;
+        TextBrush = GetTextColours();
         Size textSize = Str.GetSize(Font);
         StrLocation = loc.JustifyCenter(Size());
-        OnClick += () => { if (!Selected) return; };
+        OnClick += () => { if (!Selected || !Enabled) return; };
         OnClick += onClick;
     }
 
@@ -176,6 +180,7 @@ sealed class CanvasButton : CanvasBox, ICanvasText
 
 class CanvasTextBox : CanvasBox, ICanvasElement
 {
+    public TextBoxType Tag { get; set; }
     public static bool ShiftPressed { get; set; } = false;
     public static bool CapsToggled { get; set; } = false;
     public Font Font { get; set; }
@@ -220,49 +225,100 @@ class CanvasTextBox : CanvasBox, ICanvasElement
         }
     }
 
-    public CanvasTextBox(Font? font, Func<Size>? size, Func<PointF> loc, Action onClick) : base(size, loc)
+    public CanvasTextBox(Font? font, Func<Size>? size, TextBoxType tag, Func<PointF> loc, Action onClick) : base(size, loc)
     {
-        Font = font == null ? Helper.Fonts[HeadingTwo] : font;
-        Size = size == null ? Helper.DefaultTextBoxSize : size;
-        TextBrush = Helper.GetTextColours();
+        Tag = tag;
+        Font = font == null ? Fonts[HeadingTwo] : font;
+        Size = size == null ? DefaultTextBoxSize : size;
+        TextBrush = GetTextColours();
         Location = loc.JustifyCenter(Size());
         TextLocation = loc.JustifyCenter(Size());
+        CurrentTextBox = this;
         OnClick += () =>
         {
-            if (!Selected) return;
-            Helper.CurrentTextBox = this;
+            if (!Selected || !Enabled) return;
+            CurrentTextBox = this;
         };
         OnClick += onClick;
     }
 
     int verticalOffset = 0;
-    int lineNumber = 1;
 
     public override void Render(Graphics g)
     {
-        List<string> text = new();
-        string text = GetString(Text);
-        Size size = text.GetSize(Font);
-        if (((Location().X + size.Width) / lineNumber) >= Location().X + Size().Width)
+        List<string> strs = GetString(Text);
+        foreach(var str in strs)
         {
-            lineNumber++;
-            Text.Add('\n');
+            g.DrawString(str, Font, Selected ? TextBrush.Selected : TextBrush.Default, new PointF(TextLocation().X, TextLocation().Y + verticalOffset));
+            verticalOffset += str.GetSize(Font).Height;
         }
-        g.DrawString(GetString(Text), Font, Selected ? TextBrush.Selected : TextBrush.Default, new PointF(TextLocation().X, TextLocation().Y));
+        verticalOffset = 0;
     }
     private List<string> GetString(List<char> chars)
     {
-        int index = 0;
+        string longString = string.Join("", chars);
+        int i1 = 0;
         List<string> strs = new();
-        StringBuilder current = new();
-        foreach (var x in chars)
+        for(int i = 0; i < chars.Count; i++)
         {
-            if(x == 'n') {
-                strs.Add(current.ToString());
-                current.Clear()
+            int i2 = i;
+            if (chars[i] != '\n' && inSize(longString.Substring(i1, i2 - i1)))
+            {
+                continue;
             }
-            current.Append(x);
+            strs.Add(longString.Substring(i1, i2 - i1 - 1));
+            i1 = i;
         }
+        strs.Add(longString.Substring(i1));
+        return strs;
+    }
+    private bool inSize(string str)
+    {
+        if(str.GetSize(Font).Width < Size().Width)
+        {
+            return true;
+        }
+        return false;
+    }
+}
+
+public class CanvasPopup : ICanvasElement, ICanvasText
+{
+    public bool Selected { get; set; }
+    public bool Enabled { get; set; }
+    public Action OnClick { get; set; }
+    public Func<PointF> Location { get; set; }
+    public Func<Size> Size { get; set; }
+    public BrushTypes Brush { get; set; }
+    public Font Font { get; set; }
+    public string Str { get; set; }
+    public CanvasButton OkButton { get; set; }
+
+    public CanvasPopup(string message, Font? font, Func<Size>? size, Func<PointF> location, Action onClick)
+    {
+        Brush = GetPopupColours();
+        Str = message;
+        Font = font == null ? Fonts[HeadingTwo] : font;
+        Size = size == null ? GetDefaultPopupSize : size;
+        Location = location.JustifyCenter(Size());
+        // OnClick = () => { if (!Selected) return; };
+        OnClick = onClick;
+
+        OkButton = new CanvasButton("Ok", font, () => new Size(50, 20), () => GetCenter(0,125), onClick);
     }
 
+
+    public void PreRender(Graphics g)
+    {}
+
+    public void Render(Graphics g)
+    {}
+
+    public void PostRender(Graphics g)
+    {
+        g.FillPath(Brush.Default, GetRoundedCorners(Location(), Size()));
+        OkButton.PreRender(g);
+        OkButton.Render(g);
+        OkButton.PostRender(g);
+    }
 }

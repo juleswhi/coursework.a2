@@ -1,8 +1,11 @@
 {
   "version": 2,
-  "dgSpecHash": "OZZxFkV7p1MunPSECIBFst5nVJxj4QsaNBV9yC/G7BMO1UlBQbAk+L5KeXHynt+mnshNiu2vdpEy7JLou5SrsQ==",
+  "dgSpecHash": "F4gkasy6BRzDiHFKBuAPs1cz3IcP7gr4LVLoednEkZgMw19hUp8kVOPq7gmdTWMcmEftPnOUHnRgKiUARfCifQ==",
   "success": true,
-  "projectFilePath": "C:\\Users\\i hate windows\\Documents\\GitHub\\coursework.as\\quiz\\quiz.csproj",
-  "expectedPackageFiles": [],
+  "projectFilePath": "C:\\Users\\ayo mr white\\Documents\\GitHub\\coursework.as\\quiz\\quiz.csproj",
+  "expectedPackageFiles": [
+    "C:\\Users\\ayo mr white\\.nuget\\packages\\newtonsoft.json\\13.0.3\\newtonsoft.json.13.0.3.nupkg.sha512",
+    "C:\\Users\\ayo mr white\\.nuget\\packages\\oneof\\3.0.263\\oneof.3.0.263.nupkg.sha512"
+  ],
   "logs": []
 }

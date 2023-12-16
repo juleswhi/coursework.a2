@@ -1,6 +1,11 @@
-﻿using static quiz.FontSize;
+﻿using Newtonsoft.Json;
+using static quiz.FontSize;
 using static quiz.Colourscheme.Colours;
 using System.Diagnostics;
+using System.Security.Cryptography;
+using System.Text;
+using OneOf;
+using System.Drawing.Drawing2D;
 
 namespace quiz;
 
@@ -44,6 +49,10 @@ internal static class Helper
             null
         );
     }
+    public static BrushTypes GetPopupColours()
+    {
+        return new(Colourscheme.BrushDictionary[KHAKI], Brushes.White);
+    }
     public static BrushTypes GetButtonColours()
     {
         return new(Colourscheme.BrushDictionary[PALE_DOGWOOD], Colourscheme.BrushDictionary[KHAKI]);
@@ -69,10 +78,14 @@ internal static class Helper
     /// Stores Mouse Location in a PointF
     /// </summary>
     public static PointF MouseLocation { get; set; }
+    public static Size GetDefaultPopupSize()
+    {
+        return new Size(350, 350);
+    }
 
     public static Size DefaultCanvasBoxSize()
     {
-        return View.Current.Canvas.GetDefaultBoxSize();
+        return new Size(200, 100);
     }
     public static Size DefaultTextBoxSize() {
         return new Size(500, 100);
@@ -206,14 +219,91 @@ internal static class Helper
     /// <param name="dx">Offset by X</param>
     /// <param name="dy">Offset by Y</param>
     /// <returns>Changed PointF</returns>
-    public static PointF GetCenter<T>(this T control, float dx, float dy) where T : Control
+    public static PointF GetCenter<T>(this T control, float dx, float dy) where T : Control, ICanvasElement
     {
-        return new PointF((control.Width / 2) + dx, (control.Height / 2) + dy);
+        if(typeof(T) is ICanvasElement)
+        {
+            var size = control.Size();
+            return new PointF((size.Width / 2) + dx, (size.Height / 2) + dy);
+        }
+        else return new PointF((control.Width / 2) + dx, (control.Height / 2) + dy);
     }
+
+    /// <summary>
+    /// Non generic version of GetCenter
+    /// </summary>
+    /// <param name="dx">Horizontal offset from the center</param>
+    /// <param name="dy">Vertical offset from the center</param>
+    /// <returns>PointF of center offset from parameters</returns>
     public static PointF GetCenter(float dx, float dy)
     {
-        return new PointF((View.Current.Canvas.Width / 2) + dx, (View.Current.Canvas.Height / 2) + dy); 
+        return new PointF((View.Current.Canvas.Width / 2) + dx, (View.Current.Canvas.Height / 2) + dy);
+    }
+
+    public static GraphicsPath GetRoundedCorners(PointF point, Size size)
+    {
+        int radius = 20;
+        var path = new GraphicsPath();
+        path.AddArc(point.X, point.Y, radius, radius, 180, 90);
+        path.AddArc(point.X + size.Width - radius, point.Y, radius, radius, 270, 90);
+        path.AddArc(point.X + size.Width - radius, point.Y + size.Height - radius, radius, radius, 0, 90);
+        path.AddArc(point.X, point.Y + size.Height - radius, radius, radius, 90, 90);
+        path.CloseFigure();
+        return path;
     }
 
 
+
+    ///// USER METHODS
+
+    public static List<User> Users { get; set; } = new();
+    // public static User LoggedIn { get; set; } = new(null, null);
+
+    /// <summary>
+    /// Hashes a password with SHA256 
+    /// </summary>
+    /// <param name="password">The password to be hashed</param>
+    /// <returns>A hashed string</returns>
+    public static void Hash(this string password, out string hashedPassword)
+    {
+        using(SHA256 s = SHA256.Create())
+        {
+            byte[] hashed = s.ComputeHash(Encoding.UTF8.GetBytes(password));
+            hashedPassword = BitConverter.ToString(hashed).Replace("-", "").ToLower();
+        }
+    }
+
+    static string p = "../../../Users.json";
+    
+    public static void SerializeUsers(this IEnumerable<User> users)
+    {
+        string json = JsonConvert.SerializeObject(users);
+        using(StreamWriter sw = new(p, false))
+        {
+            sw.WriteLine(json);
+        }
+    }
+    public static List<User> DeserializeUsers()
+    {
+        string json = File.ReadAllLines(p)[0];
+        return JsonConvert.DeserializeObject<List<User>>(json)!;
+    }
+
+    public static bool TryLogin(this User user)
+    {
+        foreach(var u in Users)
+        {
+            if(u.Password == user.Password && u.Username == u.Username)
+            {
+                return true;
+            }
+        }
+        return false;
+    }
+}
+public enum TextBoxType
+{
+    None,
+    Username,
+    Password
 }

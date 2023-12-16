@@ -1,19 +1,21 @@
-﻿namespace quiz;
+﻿using static quiz.Helper;
+namespace quiz;
 
 internal class View
 {
+
     public static View Current { get; set; } = new(new(), new());
     public PictureBox Canvas { get; set; }
-    private List<ICanvasElement> _elements;
+    public List<ICanvasElement> Elements;
 
     // ~60 fps 
-    System.Timers.Timer timer = new(16);
+    System.Timers.Timer timer = new(1);
     public bool Stopped { get; set; } = false;
 
     public View(List<ICanvasElement> elements, PictureBox canvas)
     {
         Canvas = canvas;
-        _elements = elements;
+        Elements = elements;
     }
 
     public void Stop()
@@ -41,7 +43,7 @@ internal class View
 
             Helper.TimeSinceLastClick.Restart();
 
-            foreach (var element in _elements.Where(x => x.Selected))
+            foreach (var element in Elements.Where(x => x.Selected))
             {
                 element.OnClick();
             }
@@ -72,6 +74,16 @@ internal class View
         timer.Start();
     }
 
+    public void Popup(string message)
+    {
+        Elements.ForEach(x => x.Enabled = false);
+        Elements.Add(new CanvasPopup(message, null, null, () => GetCenter(0, 0), () =>
+        {
+            Current.Elements.RemoveAt(Current.Elements.Count - 1);
+            // Current.Elements.ForEach(x => x.Enabled = true);
+        }));
+    }
+
 
     private void Paint(object sender, PaintEventArgs e)
     {
@@ -81,7 +93,7 @@ internal class View
         e.Graphics.PixelOffsetMode = System.Drawing.Drawing2D.PixelOffsetMode.HighSpeed;
         e.Graphics.SmoothingMode = System.Drawing.Drawing2D.SmoothingMode.HighSpeed;
 
-        foreach (var element in _elements)
+        foreach (var element in Elements)
         {
             if (element.GetRectangle().GetMouseOver())
             {
@@ -95,12 +107,12 @@ internal class View
             element.PreRender(e.Graphics);
         }
 
-        foreach (var element in _elements)
+        foreach (var element in Elements)
         {
             element.Render(e.Graphics);
         }
 
-        foreach (var element in _elements)
+        foreach (var element in Elements)
         {
             element.PostRender(e.Graphics);
         }
