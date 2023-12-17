@@ -32,7 +32,7 @@ public interface ICanvasElement
     /// <summary>
     /// First Render Cycle. Used for base elements such as Boxes
     /// </summary>
-    /// <param name="g">Graphics object of <c>PictureBox</c></param>
+    /// <param name="g">Graphics object of PictureBox</param>
     public void PreRender(Graphics g);
     /// <summary>
     /// Second Render Cycle. Used for secondary elements like Text
@@ -302,11 +302,9 @@ public class CanvasPopup : ICanvasElement, ICanvasText
         Size = size == null ? GetDefaultPopupSize : size;
         Location = location.JustifyCenter(Size());
         // OnClick = () => { if (!Selected) return; };
-        OnClick = onClick;
-
         OkButton = new CanvasButton("Ok", font, () => new Size(50, 20), () => GetCenter(0,125), onClick);
+        OnClick = OkButton.OnClick;
     }
-
 
     public void PreRender(Graphics g)
     {}
