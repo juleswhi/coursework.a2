@@ -3,7 +3,6 @@ namespace quiz;
 
 internal class View
 {
-
     public static View Current { get; set; } = new(new(), new());
     public PictureBox Canvas { get; set; }
     public List<ICanvasElement> Elements;
